@@ -11,6 +11,8 @@ contract CityNft is ERC721 {
     string private s_beijingSvgUri1;
     string private s_beijingSvgUri2;
     VRFv2DirectFundingConsumer private s_randomWords;
+    //fixme 需要对接chainlink的随机数
+    uint256 private s_cityIndex;
 
     uint256 private s_tokenCounter;
 
@@ -27,19 +29,19 @@ contract CityNft is ERC721 {
         string memory shanghaiSvgUri2,
         string memory beijingSvgUri1,
         string memory beijingvgUri2,
-        VRFv2DirectFundingConsumer randomWoords
+        uint256 randomNum
     ) ERC721("CITY NFT", "CITYNFT") {
         s_tokenCounter = 0;
         s_shanghaiSvgUri1 = shanghaiSvgUri1;
         s_shanghaiSvgUri2 = shanghaiSvgUri2;
         s_beijingSvgUri1 = beijingSvgUri1;
         s_beijingSvgUri2 = beijingvgUri2;
-        s_randomWords = randomWoords;
+        s_cityIndex = randomNum;
     }
 
     function mintNft() public {
         uint256 tokenCounter = s_tokenCounter;
-        uint256 cityIndex = s_randomWords.getRandomNum();
+        uint256 cityIndex = s_cityIndex;
         _safeMint(msg.sender, tokenCounter);
         s_tokenCounter += 1;
         CityNFTState city = CityNFTState(cityIndex);
@@ -61,7 +63,7 @@ contract CityNft is ERC721 {
         uint256 tokenId
     ) public view override returns (string memory) {
         //根据随机数的结果选择不同的城市
-        uint256 cityIndex = s_randomWords.getRandomNum();
+        uint256 cityIndex = s_cityIndex;
         CityNFTState city = CityNFTState(cityIndex);
         string memory imageURI;
 
