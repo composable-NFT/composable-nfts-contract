@@ -2,9 +2,10 @@
 // An example of a consumer contract that directly pays for each request.
 pragma solidity ^0.8.7;
 
-import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/ConfirmedOwner.sol";
-import {VRFV2WrapperConsumerBase} from "@chainlink/contracts/src/v0.8/vrf/VRFV2WrapperConsumerBase.sol";
-import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/shared/interfaces/LinkTokenInterface.sol";
+import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/ConfirmedOwner.sol";
+import {VRFV2WrapperConsumerBase} from "@chainlink/contracts/src/v0.8/VRFV2WrapperConsumerBase.sol";
+
+//import {LinkTokenInterface} from "@chainlink/contracts/src/v0.8/LinkTokenInterface.sol";
 
 /**
  * Request testnet LINK and ETH here: https://faucets.chain.link/
@@ -39,6 +40,7 @@ contract VRFv2DirectFundingConsumer is
     // past requests Id.
     uint256[] public requestIds;
     uint256 public lastRequestId;
+    uint256 public randomWords;
 
     // Depends on the number of requested values that you want sent to the
     // fulfillRandomWords() function. Test and adjust
@@ -93,11 +95,24 @@ contract VRFv2DirectFundingConsumer is
         require(s_requests[_requestId].paid > 0, "request not found");
         s_requests[_requestId].fulfilled = true;
         s_requests[_requestId].randomWords = _randomWords;
+        handleRandomNum(_randomWords);
         emit RequestFulfilled(
             _requestId,
             _randomWords,
             s_requests[_requestId].paid
         );
+    }
+
+    /**
+     * fixme-这里的取模2需要调整为根据城市总数进行取模
+     * @param _randomWords  randomWord
+     */
+    function handleRandomNum(uint256[] memory _randomWords) internal {
+        randomWords = _randomWords[0] % 2;
+    }
+
+    function getRandomNum() external view returns (uint256) {
+        return randomWords;
     }
 
     function getRequestStatus(
@@ -115,11 +130,11 @@ contract VRFv2DirectFundingConsumer is
     /**
      * Allow withdraw of Link tokens from the contract
      */
-    function withdrawLink() public onlyOwner {
-        LinkTokenInterface link = LinkTokenInterface(linkAddress);
-        require(
-            link.transfer(msg.sender, link.balanceOf(address(this))),
-            "Unable to transfer"
-        );
-    }
+    // function withdrawLink() public onlyOwner {
+    //     LinkTokenInterface link = LinkTokenInterface(linkAddress);
+    //     require(
+    //         link.transfer(msg.sender, link.balanceOf(address(this))),
+    //         "Unable to transfer"
+    //     );
+    // }
 }
