@@ -21,6 +21,12 @@ https://book.getfoundry.sh/
 $ forge build
 ```
 
+### dependencies
+```
+forge install smartcontractkit/chainlink-brownie-contracts@0.8.0 --no-commit
+forge install OpenZeppelin/openzeppelin-contracts
+```
+
 ### Test
 
 ```shell
